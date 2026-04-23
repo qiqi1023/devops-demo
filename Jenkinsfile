@@ -15,23 +15,20 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing Node.js dependencies...'
-                // Use PowerShell instead of bash
-                powershell 'npm install'
+                sh 'npm install'
             }
         }
         stage('Run Tests') {
             steps {
                 echo 'Running automated tests...'
-                // Use PowerShell instead of bash
-                powershell 'npm test'
+                sh 'npm test'
             }
         }
         stage('Build Docker Image') {
             steps {
-                echo "Building Docker image: ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                // Use PowerShell instead of bash
-                powershell "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
-                powershell "docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
+                echo "Building Docker image: ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}" // Fixed the echo statement
+                sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh "docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
             }
         }
         stage('Push to Docker Hub') {
@@ -41,18 +38,18 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    powershell "echo $DOCKER_PASS | docker login -u $DOCKER_USER --passwordstdin"
-                    powershell "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    powershell "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --passwordstdin'
+                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
                 }
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying new container...'
-                powershell "docker stop devops-app || true"
-                powershell "docker rm devops-app || true"
-                powershell "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                sh 'docker stop devops-app || true'
+                sh 'docker rm devops-app || true'
+                sh "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
     }
@@ -64,7 +61,7 @@ pipeline {
             echo 'Pipeline FAILED. Check the logs for details.'
         }
         always {
-            powershell "docker logout || true"
+            sh 'docker logout || true'
         }
     }
 }
