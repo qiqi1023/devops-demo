@@ -15,20 +15,23 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing Node.js dependencies...'
-                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "npm install"'  // Use Git Bash
+                // Use PowerShell instead of bash
+                powershell 'npm install'
             }
         }
         stage('Run Tests') {
             steps {
                 echo 'Running automated tests...'
-                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "npm test"'  // Use Git Bash
+                // Use PowerShell instead of bash
+                powershell 'npm test'
             }
         }
         stage('Build Docker Image') {
             steps {
                 echo "Building Docker image: ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."'  // Use Git Bash
-                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"'  // Use Git Bash
+                // Use PowerShell instead of bash
+                powershell "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
+                powershell "docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
             }
         }
         stage('Push to Docker Hub') {
@@ -38,18 +41,18 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "echo $DOCKER_PASS | docker login -u $DOCKER_USER --passwordstdin"'  // Use Git Bash
-                    sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"'  // Use Git Bash
-                    sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"'  // Use Git Bash
+                    powershell "echo $DOCKER_PASS | docker login -u $DOCKER_USER --passwordstdin"
+                    powershell "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    powershell "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
                 }
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying new container...'
-                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker stop devops-app || true"'  // Use Git Bash
-                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker rm devops-app || true"'  // Use Git Bash
-                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"'  // Use Git Bash
+                powershell "docker stop devops-app || true"
+                powershell "docker rm devops-app || true"
+                powershell "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
     }
@@ -61,7 +64,7 @@ pipeline {
             echo 'Pipeline FAILED. Check the logs for details.'
         }
         always {
-            sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker logout || true"'  // Use Git Bash
+            powershell "docker logout || true"
         }
     }
 }
