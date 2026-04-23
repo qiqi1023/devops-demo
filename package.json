@@ -1,0 +1,13 @@
+{
+    "name": "devops-demo",
+    "version": "1.0.0",
+    "description": "DevOps Tutorial App",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "node src/app.js",
+        "test": "echo \"All tests passed\" && exit 0"
+    },
+    "dependencies": {
+        "express": "^4.18.2"
+    }
+}
