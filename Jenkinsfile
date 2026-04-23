@@ -58,7 +58,7 @@ pipeline {
                 echo 'Deploying new container...'
                 bat 'docker stop devops-app || exit /b 0'
                 bat 'docker rm devops-app || exit /b 0'
-                bat "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                bat "docker run -d --name devops-app -p 3001:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
     }
