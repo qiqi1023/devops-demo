@@ -15,20 +15,23 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing Node.js dependencies...'
-                sh 'npm install'
+                // Use bash.exe from Git for Windows
+                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "npm install"'
             }
         }
         stage('Run Tests') {
             steps {
                 echo 'Running automated tests...'
-                sh 'npm test'
+                // Use bash.exe from Git for Windows
+                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "npm test"'
             }
         }
         stage('Build Docker Image') {
             steps {
-                echo "Building Docker image: ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}" // Fixed the echo statement
-                sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
-                sh "docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
+                echo "Building Docker image: ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}" 
+                // Use bash.exe from Git for Windows
+                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."'
+                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"'
             }
         }
         stage('Push to Docker Hub') {
@@ -38,18 +41,20 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --passwordstdin'
-                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
+                    // Use bash.exe for Docker login and push
+                    sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "echo $DOCKER_PASS | docker login -u $DOCKER_USER --passwordstdin"'
+                    sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"'
+                    sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"'
                 }
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying new container...'
-                sh 'docker stop devops-app || true'
-                sh 'docker rm devops-app || true'
-                sh "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                // Use bash.exe from Git for Windows
+                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker stop devops-app || true"'
+                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker rm devops-app || true"'
+                sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"'
             }
         }
     }
@@ -61,7 +66,8 @@ pipeline {
             echo 'Pipeline FAILED. Check the logs for details.'
         }
         always {
-            sh 'docker logout || true'
+            // Logout from Docker
+            sh '"C:\\Program Files\\Git\\bin\\bash.exe" -c "docker logout || true"'
         }
     }
 }
