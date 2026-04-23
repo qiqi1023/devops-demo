@@ -3,7 +3,7 @@ pipeline {
  environment {
  DOCKERHUB_USER = 'qiqi1023'
  IMAGE_NAME = 'devops-demo'
- IMAGE_TAG = "${1.0.0}"
+ IMAGE_TAG = "1.0.0"
  }
  stages {
  stage('Checkout') {
