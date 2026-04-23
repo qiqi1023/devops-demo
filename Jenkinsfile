@@ -19,8 +19,8 @@ pipeline {
             steps {
                 echo 'Installing Node.js dependencies...'
                 dir('C:/ProgramData/Jenkins/.jenkins/workspace/devops-demo-pipeline') {
-                    // Using 'powershell' for Windows instead of 'bat'
-                    powershell 'npm install'
+                    // Using 'bat' for Windows instead of 'sh'
+                    bat 'npm install'
                 }
             }
         }
@@ -29,8 +29,8 @@ pipeline {
             steps {
                 echo 'Running automated tests...'
                 dir('C:/ProgramData/Jenkins/.jenkins/workspace/devops-demo-pipeline') {
-                    // Using 'powershell' for Windows instead of 'bat'
-                    powershell 'npm test'
+                    // Using 'bat' for Windows instead of 'sh'
+                    bat 'npm test'
                 }
             }
         }
@@ -38,18 +38,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo "Building Docker image: ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                powershell "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
-                powershell "docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
+                bat "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
+                bat "docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    // Using PowerShell to handle environment variables
-                    powershell "echo $env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin"
-                    powershell "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    powershell "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
+                    bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
+                    bat "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    bat "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
                 }
             }
         }
@@ -57,9 +56,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying new container...'
-                powershell 'docker stop devops-app || true'
-                powershell 'docker rm devops-app || true'
-                powershell "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                bat 'docker stop devops-app || true'
+                bat 'docker rm devops-app || true'
+                bat "docker run -d --name devops-app -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
     }
@@ -72,7 +71,7 @@ pipeline {
             echo 'Pipeline FAILED. Check the logs for details.'
         }
         always {
-            powershell 'docker logout || true'
+            bat 'docker logout || true'
         }
     }
 }
