@@ -56,8 +56,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying new container...'
-                bat 'docker stop devops-demo || true'
-                bat 'docker rm devops-demo || true'
+                bat 'docker stop devops-app || exit /b 0'
+                bat 'docker rm devops-app || exit /b 0'
                 bat "docker run -d --name devops-demo -p 3000:3000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
